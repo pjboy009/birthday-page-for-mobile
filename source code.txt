@@ -1,0 +1,879 @@
+Here's the complete source code for every file I created/modified for the birthday surprise app. You can copy-paste any of these into your own Expo project.
+
+---
+
+### 📁 Project structure
+
+```
+/app/frontend/
+├── app/
+│   ├── _layout.tsx
+│   ├── index.tsx              ← Splash / Intro
+│   ├── gallery.tsx            ← 3D Polaroid Gallery
+│   ├── memory/[id].tsx        ← Flip-card Memory Detail
+│   └── message.tsx            ← Personal Birthday Letter
+└── src/
+    ├── components/
+    │   └── FloatingParticles.tsx
+    └── data/
+        └── memories.ts
+```
+
+---
+
+### 📦 Dependencies installed
+
+```bash
+yarn expo install lucide-react-native react-native-svg \
+  @expo-google-fonts/playfair-display \
+  @expo-google-fonts/outfit \
+  @expo-google-fonts/caveat
+```
+
+Plus what already shipped with the Expo SDK 54 starter: `expo-router`, `expo-linear-gradient`, `expo-image`, `react-native-reanimated`, `react-native-gesture-handler`, `expo-status-bar`.
+
+---
+
+### 1. `app/_layout.tsx` — Root layout + font loader
+
+```tsx
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import {
+  useFonts as usePlayfair,
+  PlayfairDisplay_700Bold,
+  PlayfairDisplay_400Regular_Italic,
+} from "@expo-google-fonts/playfair-display";
+import {
+  useFonts as useOutfit,
+  Outfit_400Regular,
+  Outfit_600SemiBold,
+} from "@expo-google-fonts/outfit";
+import {
+  useFonts as useCaveat,
+  Caveat_400Regular,
+  Caveat_700Bold,
+} from "@expo-google-fonts/caveat";
+
+export default function RootLayout() {
+  const [playfairLoaded] = usePlayfair({
+    PlayfairDisplay_700Bold,
+    PlayfairDisplay_400Regular_Italic,
+  });
+  const [outfitLoaded] = useOutfit({
+    Outfit_400Regular,
+    Outfit_600SemiBold,
+  });
+  const [caveatLoaded] = useCaveat({
+    Caveat_400Regular,
+    Caveat_700Bold,
+  });
+
+  const ready = playfairLoaded && outfitLoaded && caveatLoaded;
+
+  if (!ready) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator color="#D4AF37" size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#1A0B1A" }}>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "#1A0B1A" },
+          animation: "fade",
+        }}
+      />
+    </GestureHandlerRootView>
+  );
+}
+
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    backgroundColor: "#1A0B1A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
+```
+
+---
+
+### 2. `src/data/memories.ts` — Memory dataset
+
+```ts
+export type Memory = {
+  id: string;
+  image: string;
+  date: string;
+  title: string;
+  note: string;
+};
+
+export const memories: Memory[] = [
+  {
+    id: "1",
+    image:
+      "https://images.unsplash.com/photo-1634535462955-91cf1a97122e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxiaXJ0aGRheSUyMGNha2UlMjBzcGFya2xlc3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "The Beginning",
+    title: "The First Sparkle",
+    note: "Every story has a first page. Ours began with a smile that lit up an entire room — yours. From that moment, the world felt softer, brighter, kinder.",
+  },
+  {
+    id: "2",
+    image:
+      "https://images.unsplash.com/photo-1541385496969-a3edfa5a94ed?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxyb21hbnRpYyUyMGNvdXBsZSUyMGFlc3RoZXRpY3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "Golden Hour",
+    title: "Sunset & Whispers",
+    note: "We chased a sunset and the sky painted itself for you. I remember the way you laughed at something silly I said — that laugh is my favorite song.",
+  },
+  {
+    id: "3",
+    image:
+      "https://images.unsplash.com/photo-1699726256380-d1e393507b4b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwzfHxyb21hbnRpYyUyMGNvdXBsZSUyMGFlc3RoZXRpY3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "Wanderlust",
+    title: "Adventures with You",
+    note: "Some places become unforgettable because of who you see them with. With you, every city is home and every road is the right one.",
+  },
+  {
+    id: "4",
+    image:
+      "https://images.pexels.com/photos/20183432/pexels-photo-20183432.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    date: "Quiet Nights",
+    title: "Silhouettes & Stars",
+    note: "The world went silent and there was only us. Your hand in mine, the horizon endless. Some moments are too perfect for words — this was one.",
+  },
+  {
+    id: "5",
+    image:
+      "https://images.unsplash.com/photo-1634535462955-91cf1a97122e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxiaXJ0aGRheSUyMGNha2UlMjBzcGFya2xlc3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "Celebrations",
+    title: "Cake & Confetti",
+    note: "Every candle you blow out, I make the same wish — that the universe keeps being kind to you, just like you are kind to everyone around you.",
+  },
+  {
+    id: "6",
+    image:
+      "https://images.unsplash.com/photo-1541385496969-a3edfa5a94ed?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxyb21hbnRpYyUyMGNvdXBsZSUyMGFlc3RoZXRpY3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "Little Things",
+    title: "Coffee & Conversations",
+    note: "Morning coffee, late-night talks, songs on repeat. The little things became the biggest things because they were all with you.",
+  },
+  {
+    id: "7",
+    image:
+      "https://images.unsplash.com/photo-1699726256380-d1e393507b4b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwzfHxyb21hbnRpYyUyMGNvdXBsZSUyMGFlc3RoZXRpY3xlbnwwfHx8fDE3NzkyMDc3NzF8MA&ixlib=rb-4.1.0&q=85",
+    date: "Forever",
+    title: "Promises in Polaroids",
+    note: "If I could freeze a moment forever, it would be this one. Your eyes, your smile, the warmth of being seen. Thank you for being you.",
+  },
+  {
+    id: "8",
+    image:
+      "https://images.pexels.com/photos/20183432/pexels-photo-20183432.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    date: "Today",
+    title: "Happy Birthday, Priyanka",
+    note: "Today the stars align a little brighter — because you exist. Here's to you, to us, and to every beautiful moment still waiting to be lived.",
+  },
+];
+```
+
+---
+
+### 3. `src/components/FloatingParticles.tsx` — Reusable particle layer
+
+```tsx
+import React, { useEffect, useMemo } from "react";
+import { StyleSheet, View, Dimensions } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withDelay,
+  Easing,
+  interpolate,
+} from "react-native-reanimated";
+import { Heart, Sparkles, Star } from "lucide-react-native";
+
+const { width, height } = Dimensions.get("window");
+
+type ParticleProps = { index: number; total: number };
+
+function Particle({ index, total }: ParticleProps) {
+  const progress = useSharedValue(0);
+
+  const startX = useMemo(() => Math.random() * width, []);
+  const drift = useMemo(() => (Math.random() - 0.5) * 80, []);
+  const duration = useMemo(() => 6000 + Math.random() * 5000, []);
+  const delay = useMemo(() => (index / total) * duration, [index, total, duration]);
+  const size = useMemo(() => 14 + Math.random() * 18, []);
+  const Icon = useMemo(() => {
+    const choices = [Heart, Sparkles, Star];
+    return choices[index % choices.length];
+  }, [index]);
+  const color = useMemo(() => {
+    const palette = ["#D4AF37", "#E0BFB8", "#9E4770", "#F8F0E3"];
+    return palette[index % palette.length];
+  }, [index]);
+
+  useEffect(() => {
+    progress.value = withDelay(
+      delay,
+      withRepeat(withTiming(1, { duration, easing: Easing.linear }), -1, false)
+    );
+  }, [progress, duration, delay]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(progress.value, [0, 1], [height + 40, -60]);
+    const translateX = interpolate(progress.value, [0, 0.5, 1], [0, drift, 0]);
+    const opacity = interpolate(progress.value, [0, 0.15, 0.85, 1], [0, 0.9, 0.9, 0]);
+    const scale = interpolate(progress.value, [0, 0.5, 1], [0.6, 1, 0.7]);
+    const rotate = `${interpolate(progress.value, [0, 1], [0, 360])}deg`;
+    return {
+      transform: [{ translateY }, { translateX }, { scale }, { rotate }],
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[styles.particle, { left: startX }, animatedStyle]}
+    >
+      <Icon size={size} color={color} fill={color} />
+    </Animated.View>
+  );
+}
+
+export default function FloatingParticles({ count = 14 }: { count?: number }) {
+  const particles = Array.from({ length: count }, (_, i) => i);
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+      {particles.map((i) => (
+        <Particle key={i} index={i} total={count} />
+      ))}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  particle: { position: "absolute", top: 0 },
+});
+```
+
+---
+
+### 4. `app/index.tsx` — Splash / Intro
+
+```tsx
+import React, { useEffect } from "react";
+import { StyleSheet, View, Text, Dimensions, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withDelay,
+  withRepeat, withSequence, Easing, interpolate,
+} from "react-native-reanimated";
+import { ChevronRight, Gift } from "lucide-react-native";
+import FloatingParticles from "../src/components/FloatingParticles";
+
+const { width } = Dimensions.get("window");
+
+export default function Index() {
+  const router = useRouter();
+  const titleProgress = useSharedValue(0);
+  const subProgress = useSharedValue(0);
+  const nameProgress = useSharedValue(0);
+  const ctaProgress = useSharedValue(0);
+  const glowProgress = useSharedValue(0);
+  const giftFloat = useSharedValue(0);
+
+  useEffect(() => {
+    titleProgress.value = withDelay(200, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    nameProgress.value = withDelay(900, withTiming(1, { duration: 1100, easing: Easing.out(Easing.cubic) }));
+    subProgress.value = withDelay(1800, withTiming(1, { duration: 900 }));
+    ctaProgress.value = withDelay(2400, withTiming(1, { duration: 700 }));
+    glowProgress.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 2200, easing: Easing.inOut(Easing.ease) })
+      ), -1, false);
+    giftFloat.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.ease) })
+      ), -1, false);
+  }, [titleProgress, nameProgress, subProgress, ctaProgress, glowProgress, giftFloat]);
+
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleProgress.value,
+    transform: [{ translateY: interpolate(titleProgress.value, [0, 1], [20, 0]) }],
+  }));
+  const nameStyle = useAnimatedStyle(() => ({
+    opacity: nameProgress.value,
+    transform: [{ scale: interpolate(nameProgress.value, [0, 1], [0.7, 1]) }],
+  }));
+  const subStyle = useAnimatedStyle(() => ({
+    opacity: subProgress.value,
+    transform: [{ translateY: interpolate(subProgress.value, [0, 1], [12, 0]) }],
+  }));
+  const ctaStyle = useAnimatedStyle(() => ({
+    opacity: ctaProgress.value,
+    transform: [{ translateY: interpolate(ctaProgress.value, [0, 1], [24, 0]) }],
+  }));
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(glowProgress.value, [0, 1], [0.35, 0.85]),
+    transform: [{ scale: interpolate(glowProgress.value, [0, 1], [0.95, 1.1]) }],
+  }));
+  const giftStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(giftFloat.value, [0, 1], [0, -10]) },
+      { rotate: `${interpolate(giftFloat.value, [0, 1], [-6, 6])}deg` },
+    ],
+  }));
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient colors={["#1A0B1A", "#2A1528", "#1A0B1A"]} style={StyleSheet.absoluteFillObject} />
+      <Animated.View style={[styles.glowOrb, glowStyle]} pointerEvents="none">
+        <LinearGradient
+          colors={["rgba(212,175,55,0.45)", "rgba(158,71,112,0.2)", "transparent"]}
+          style={styles.glowGradient}
+        />
+      </Animated.View>
+      <FloatingParticles count={16} />
+      <View style={styles.content}>
+        <Animated.View style={[styles.giftWrap, giftStyle]}>
+          <View style={styles.giftRing}>
+            <Gift size={36} color="#D4AF37" strokeWidth={1.5} />
+          </View>
+        </Animated.View>
+        <Animated.Text style={[styles.eyebrow, titleStyle]}>A little surprise for</Animated.Text>
+        <Animated.Text style={[styles.nameText, nameStyle]}>Priyanka</Animated.Text>
+        <Animated.Text style={[styles.script, nameStyle]}>happy birthday</Animated.Text>
+        <Animated.Text style={[styles.subtitle, subStyle]}>
+          A collection of moments, memories, and everything that makes you, you. Tap each polaroid to unfold a little secret.
+        </Animated.Text>
+        <Animated.View style={[styles.ctaWrap, ctaStyle]}>
+          <Pressable
+            onPress={() => router.push("/gallery")}
+            style={({ pressed }) => [styles.cta, pressed && { transform: [{ scale: 0.97 }] }]}
+          >
+            <LinearGradient
+              colors={["#D4AF37", "#E0BFB8"]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={styles.ctaGradient}
+            >
+              <Text style={styles.ctaText}>Open Your Surprise</Text>
+              <ChevronRight size={20} color="#1A0B1A" strokeWidth={2.5} />
+            </LinearGradient>
+          </Pressable>
+        </Animated.View>
+      </View>
+      <Text style={styles.footer}>made with love · 2026</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#1A0B1A", alignItems: "center", justifyContent: "center" },
+  glowOrb: { position: "absolute", width: width * 1.4, height: width * 1.4, alignItems: "center", justifyContent: "center" },
+  glowGradient: { width: "100%", height: "100%", borderRadius: 9999 },
+  content: { paddingHorizontal: 32, alignItems: "center", width: "100%" },
+  giftWrap: { marginBottom: 32 },
+  giftRing: {
+    width: 80, height: 80, borderRadius: 40, borderWidth: 1,
+    borderColor: "rgba(212,175,55,0.45)", alignItems: "center", justifyContent: "center",
+    backgroundColor: "rgba(42, 21, 40, 0.6)",
+    shadowColor: "#D4AF37", shadowOpacity: 0.5, shadowRadius: 24, shadowOffset: { width: 0, height: 0 }, elevation: 12,
+  },
+  eyebrow: {
+    fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 14, letterSpacing: 4,
+    textTransform: "uppercase", marginBottom: 12,
+  },
+  nameText: {
+    fontFamily: "PlayfairDisplay_700Bold", color: "#F8F0E3",
+    fontSize: 64, lineHeight: 70, letterSpacing: -1, textAlign: "center",
+  },
+  script: { fontFamily: "Caveat_700Bold", color: "#D4AF37", fontSize: 38, lineHeight: 44, marginTop: 4, marginBottom: 28 },
+  subtitle: {
+    fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 15, lineHeight: 24,
+    textAlign: "center", maxWidth: 320, marginBottom: 48,
+  },
+  ctaWrap: { width: "100%", alignItems: "center" },
+  cta: {
+    borderRadius: 999, overflow: "hidden", shadowColor: "#D4AF37",
+    shadowOpacity: 0.45, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 12,
+  },
+  ctaGradient: { flexDirection: "row", alignItems: "center", paddingHorizontal: 28, paddingVertical: 16, gap: 8 },
+  ctaText: { fontFamily: "Outfit_600SemiBold", color: "#1A0B1A", fontSize: 16, letterSpacing: 0.5 },
+  footer: {
+    position: "absolute", bottom: 36, fontFamily: "Caveat_400Regular",
+    color: "rgba(218, 182, 196, 0.6)", fontSize: 16, letterSpacing: 1,
+  },
+});
+```
+
+---
+
+### 5. `app/gallery.tsx` — 3D Polaroid Gallery
+
+```tsx
+import React from "react";
+import { StyleSheet, View, Text, Dimensions, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import Animated, {
+  useSharedValue, useAnimatedScrollHandler, useAnimatedStyle,
+  interpolate, Extrapolation,
+} from "react-native-reanimated";
+import { Image } from "expo-image";
+import { ArrowLeft, Hand, Heart } from "lucide-react-native";
+import FloatingParticles from "../src/components/FloatingParticles";
+import { memories, Memory } from "../src/data/memories";
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = Math.min(width * 0.72, 320);
+const CARD_HEIGHT = CARD_WIDTH * 1.32;
+const SPACING = 20;
+const SNAP_INTERVAL = CARD_WIDTH + SPACING;
+const SIDE_PADDING = (width - CARD_WIDTH) / 2;
+
+function PolaroidCard({ item, index, scrollX, onPress }: {
+  item: Memory; index: number;
+  scrollX: Animated.SharedValue<number>; onPress: () => void;
+}) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const input = [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL];
+    const scale = interpolate(scrollX.value, input, [0.82, 1, 0.82], Extrapolation.CLAMP);
+    const rotateY = interpolate(scrollX.value, input, [25, 0, -25], Extrapolation.CLAMP);
+    const translateY = interpolate(scrollX.value, input, [30, 0, 30], Extrapolation.CLAMP);
+    const opacity = interpolate(scrollX.value, input, [0.55, 1, 0.55], Extrapolation.CLAMP);
+    return {
+      opacity,
+      transform: [
+        { perspective: 900 }, { translateY }, { scale }, { rotateY: `${rotateY}deg` },
+      ],
+    };
+  });
+  const tiltStyle = useAnimatedStyle(() => {
+    const input = [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL];
+    const rotateZ = interpolate(scrollX.value, input, [-3, 0, 3], Extrapolation.CLAMP);
+    return { transform: [{ rotate: `${rotateZ}deg` }] };
+  });
+
+  return (
+    <Animated.View style={[styles.cardOuter, animatedStyle]}>
+      <Pressable onPress={onPress} style={styles.pressArea}>
+        <Animated.View style={[styles.polaroid, tiltStyle]}>
+          <View style={styles.photoFrame}>
+            <Image source={{ uri: item.image }} style={styles.photo} contentFit="cover" transition={400} />
+            <LinearGradient colors={["transparent", "rgba(26,11,26,0.7)"]} style={styles.photoShade} />
+            <View style={styles.dateChip}>
+              <Text style={styles.dateChipText}>{item.date}</Text>
+            </View>
+          </View>
+          <View style={styles.polaroidCaption}>
+            <Text style={styles.captionTitle} numberOfLines={1}>{item.title}</Text>
+            <View style={styles.captionRow}>
+              <Hand size={12} color="#D4AF37" />
+              <Text style={styles.captionHint}>tap to unfold</Text>
+            </View>
+          </View>
+        </Animated.View>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+export default function Gallery() {
+  const router = useRouter();
+  const scrollX = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => { scrollX.value = e.contentOffset.x; });
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient colors={["#1A0B1A", "#2A1528", "#1A0B1A"]} style={StyleSheet.absoluteFillObject} />
+      <FloatingParticles count={10} />
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.iconBtn}>
+          <ArrowLeft size={20} color="#F8F0E3" />
+        </Pressable>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerEyebrow}>For Priyanka</Text>
+          <Text style={styles.headerTitle}>Memory Lane</Text>
+        </View>
+        <View style={styles.iconBtn}><Heart size={18} color="#D4AF37" fill="#D4AF37" /></View>
+      </View>
+      <View style={styles.carouselWrap}>
+        <Animated.ScrollView
+          horizontal showsHorizontalScrollIndicator={false} decelerationRate="fast"
+          snapToInterval={SNAP_INTERVAL} snapToAlignment="start"
+          contentContainerStyle={{ paddingHorizontal: SIDE_PADDING }}
+          onScroll={onScroll} scrollEventThrottle={16}
+        >
+          {memories.map((m, i) => (
+            <View key={m.id} style={{ width: CARD_WIDTH, marginRight: i === memories.length - 1 ? 0 : SPACING }}>
+              <PolaroidCard item={m} index={i} scrollX={scrollX} onPress={() => router.push(`/memory/${m.id}`)} />
+            </View>
+          ))}
+        </Animated.ScrollView>
+      </View>
+      <View style={styles.bottomDock}>
+        <Text style={styles.dockHint}>Swipe through · Tap to reveal</Text>
+        <Pressable onPress={() => router.push("/message")} style={styles.finalBtn}>
+          <LinearGradient
+            colors={["rgba(212,175,55,0.18)", "rgba(158,71,112,0.18)"]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.finalGradient}
+          >
+            <Text style={styles.finalText}>Read my letter to you</Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#1A0B1A" },
+  header: { paddingTop: 64, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
+  iconBtn: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(42, 21, 40, 0.7)",
+    borderWidth: 1, borderColor: "rgba(224, 191, 184, 0.15)", alignItems: "center", justifyContent: "center",
+  },
+  headerCenter: { alignItems: "center" },
+  headerEyebrow: { fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 2 },
+  headerTitle: { fontFamily: "PlayfairDisplay_700Bold", color: "#F8F0E3", fontSize: 22, letterSpacing: 0.3 },
+  carouselWrap: { flex: 1, justifyContent: "center" },
+  cardOuter: { width: CARD_WIDTH, height: CARD_HEIGHT },
+  pressArea: { flex: 1 },
+  polaroid: {
+    flex: 1, backgroundColor: "#F8F0E3", borderRadius: 6, padding: 12, paddingBottom: 22,
+    shadowColor: "#000", shadowOpacity: 0.55, shadowRadius: 28, shadowOffset: { width: 0, height: 18 }, elevation: 18,
+  },
+  photoFrame: { flex: 1, borderRadius: 3, overflow: "hidden", backgroundColor: "#2A1528" },
+  photo: { width: "100%", height: "100%" },
+  photoShade: { ...StyleSheet.absoluteFillObject },
+  dateChip: {
+    position: "absolute", top: 12, left: 12, paddingHorizontal: 10, paddingVertical: 4,
+    borderRadius: 999, backgroundColor: "rgba(26,11,26,0.55)", borderWidth: 1, borderColor: "rgba(212,175,55,0.5)",
+  },
+  dateChipText: { fontFamily: "Outfit_600SemiBold", fontSize: 10, color: "#D4AF37", letterSpacing: 1.5, textTransform: "uppercase" },
+  polaroidCaption: { paddingTop: 12, paddingHorizontal: 4 },
+  captionTitle: { fontFamily: "Caveat_700Bold", fontSize: 24, color: "#2A1528", lineHeight: 26 },
+  captionRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+  captionHint: { fontFamily: "Outfit_400Regular", fontSize: 10, color: "#9E4770", letterSpacing: 1, textTransform: "uppercase" },
+  bottomDock: { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 8, alignItems: "center", gap: 14 },
+  dockHint: { fontFamily: "Outfit_400Regular", color: "rgba(218, 182, 196, 0.7)", fontSize: 12, letterSpacing: 2, textTransform: "uppercase" },
+  finalBtn: { borderRadius: 999, overflow: "hidden", borderWidth: 1, borderColor: "rgba(212,175,55,0.4)" },
+  finalGradient: { paddingHorizontal: 24, paddingVertical: 12 },
+  finalText: { fontFamily: "Outfit_600SemiBold", color: "#F8F0E3", fontSize: 14, letterSpacing: 0.5 },
+});
+```
+
+---
+
+### 6. `app/memory/[id].tsx` — Flip-card Memory Detail
+
+```tsx
+import React, { useEffect } from "react";
+import { StyleSheet, View, Text, Pressable, Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming,
+  interpolate, Easing,
+} from "react-native-reanimated";
+import { Image } from "expo-image";
+import { ArrowLeft, RotateCw, Heart } from "lucide-react-native";
+import FloatingParticles from "../../src/components/FloatingParticles";
+import { memories } from "../../src/data/memories";
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = Math.min(width * 0.82, 340);
+const CARD_HEIGHT = CARD_WIDTH * 1.35;
+
+export default function MemoryDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const memory = memories.find((m) => m.id === id) ?? memories[0];
+  const flip = useSharedValue(0);
+  const enter = useSharedValue(0);
+
+  useEffect(() => {
+    enter.value = withTiming(1, { duration: 700, easing: Easing.out(Easing.cubic) });
+  }, [enter]);
+
+  const toggleFlip = () => {
+    flip.value = withTiming(flip.value > 0.5 ? 0 : 1, { duration: 900, easing: Easing.inOut(Easing.cubic) });
+  };
+
+  const frontStyle = useAnimatedStyle(() => {
+    const rotateY = `${interpolate(flip.value, [0, 1], [0, 180])}deg`;
+    const opacity = flip.value < 0.5 ? 1 : 0;
+    const scale = interpolate(enter.value, [0, 1], [0.85, 1]);
+    return { opacity, transform: [{ perspective: 1200 }, { scale }, { rotateY }] };
+  });
+  const backStyle = useAnimatedStyle(() => {
+    const rotateY = `${interpolate(flip.value, [0, 1], [180, 360])}deg`;
+    const opacity = flip.value > 0.5 ? 1 : 0;
+    const scale = interpolate(enter.value, [0, 1], [0.85, 1]);
+    return { opacity, transform: [{ perspective: 1200 }, { scale }, { rotateY }] };
+  });
+  const fadeIn = useAnimatedStyle(() => ({
+    opacity: enter.value,
+    transform: [{ translateY: interpolate(enter.value, [0, 1], [12, 0]) }],
+  }));
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient colors={["#1A0B1A", "#2A1528", "#1A0B1A"]} style={StyleSheet.absoluteFillObject} />
+      <FloatingParticles count={8} />
+      <Animated.View style={[styles.header, fadeIn]}>
+        <Pressable onPress={() => router.back()} style={styles.iconBtn}>
+          <ArrowLeft size={20} color="#F8F0E3" />
+        </Pressable>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerEyebrow}>{memory.date}</Text>
+          <Text style={styles.headerTitle}>{memory.title}</Text>
+        </View>
+        <View style={styles.iconBtn}><Heart size={18} color="#D4AF37" fill="#D4AF37" /></View>
+      </Animated.View>
+      <View style={styles.center}>
+        <Pressable onPress={toggleFlip} style={styles.cardPress}>
+          <View style={styles.cardStack}>
+            <Animated.View style={[styles.cardFace, styles.cardFront, frontStyle]}>
+              <View style={styles.photoFrame}>
+                <Image source={{ uri: memory.image }} style={styles.photo} contentFit="cover" transition={500} />
+                <LinearGradient colors={["transparent", "rgba(26,11,26,0.85)"]} style={styles.photoShade} />
+                <View style={styles.tapHint}>
+                  <RotateCw size={14} color="#1A0B1A" />
+                  <Text style={styles.tapHintText}>Tap to read</Text>
+                </View>
+              </View>
+              <Text style={styles.frontCaption}>{memory.title}</Text>
+            </Animated.View>
+            <Animated.View style={[styles.cardFace, styles.cardBack, backStyle]}>
+              <LinearGradient colors={["#F8F0E3", "#E8DCC8"]} style={StyleSheet.absoluteFillObject} />
+              <View style={styles.noteContent}>
+                <Text style={styles.noteDate}>{memory.date}</Text>
+                <Text style={styles.noteBody}>{memory.note}</Text>
+                <View style={styles.noteSignature}>
+                  <Text style={styles.signLine} />
+                  <Text style={styles.signText}>— always yours</Text>
+                </View>
+              </View>
+              <View style={styles.tapHintBack}>
+                <RotateCw size={14} color="#9E4770" />
+                <Text style={styles.tapHintBackText}>Tap to flip back</Text>
+              </View>
+            </Animated.View>
+          </View>
+        </Pressable>
+      </View>
+      <Animated.View style={[styles.footer, fadeIn]}>
+        <Text style={styles.footerHint}>A moment with you · {memories.indexOf(memory) + 1} of {memories.length}</Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#1A0B1A" },
+  header: { paddingTop: 64, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  iconBtn: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(42, 21, 40, 0.7)",
+    borderWidth: 1, borderColor: "rgba(224, 191, 184, 0.15)", alignItems: "center", justifyContent: "center",
+  },
+  headerCenter: { alignItems: "center", flex: 1, marginHorizontal: 12 },
+  headerEyebrow: { fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 2 },
+  headerTitle: { fontFamily: "PlayfairDisplay_700Bold", color: "#F8F0E3", fontSize: 18, letterSpacing: 0.3, textAlign: "center" },
+  center: { flex: 1, alignItems: "center", justifyContent: "center" },
+  cardPress: { width: CARD_WIDTH, height: CARD_HEIGHT },
+  cardStack: { flex: 1 },
+  cardFace: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backfaceVisibility: "hidden", borderRadius: 12, overflow: "hidden",
+  },
+  cardFront: {
+    backgroundColor: "#F8F0E3", padding: 14, paddingBottom: 28,
+    shadowColor: "#000", shadowOpacity: 0.6, shadowRadius: 32, shadowOffset: { width: 0, height: 22 }, elevation: 20,
+  },
+  photoFrame: { flex: 1, borderRadius: 6, overflow: "hidden", backgroundColor: "#2A1528" },
+  photo: { width: "100%", height: "100%" },
+  photoShade: { ...StyleSheet.absoluteFillObject },
+  tapHint: {
+    position: "absolute", bottom: 12, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "rgba(212,175,55,0.95)", borderRadius: 999,
+  },
+  tapHintText: { fontFamily: "Outfit_600SemiBold", color: "#1A0B1A", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" },
+  frontCaption: { fontFamily: "Caveat_700Bold", color: "#2A1528", fontSize: 26, textAlign: "center", marginTop: 10 },
+  cardBack: { shadowColor: "#000", shadowOpacity: 0.6, shadowRadius: 32, shadowOffset: { width: 0, height: 22 }, elevation: 20 },
+  noteContent: { flex: 1, padding: 32, paddingTop: 56, justifyContent: "center" },
+  noteDate: { fontFamily: "Outfit_600SemiBold", color: "#9E4770", fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 18 },
+  noteBody: { fontFamily: "Caveat_400Regular", color: "#2A1528", fontSize: 26, lineHeight: 34 },
+  noteSignature: { marginTop: 28 },
+  signLine: { width: 40, height: 1, backgroundColor: "#9E4770", marginBottom: 8 },
+  signText: { fontFamily: "Caveat_700Bold", color: "#9E4770", fontSize: 20 },
+  tapHintBack: { position: "absolute", bottom: 18, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 6 },
+  tapHintBackText: { fontFamily: "Outfit_400Regular", color: "#9E4770", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase" },
+  footer: { alignItems: "center", paddingBottom: 40 },
+  footerHint: { fontFamily: "Outfit_400Regular", color: "rgba(218,182,196,0.7)", fontSize: 12, letterSpacing: 2, textTransform: "uppercase" },
+});
+```
+
+---
+
+### 7. `app/message.tsx` — Personal Birthday Letter
+
+```tsx
+import React, { useEffect } from "react";
+import { StyleSheet, View, Text, ScrollView, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withRepeat,
+  withSequence, withDelay, interpolate, Easing,
+} from "react-native-reanimated";
+import { ArrowLeft, Heart, Sparkles } from "lucide-react-native";
+import FloatingParticles from "../src/components/FloatingParticles";
+
+export default function MessageScreen() {
+  const router = useRouter();
+  const enter = useSharedValue(0);
+  const glow = useSharedValue(0);
+
+  useEffect(() => {
+    enter.value = withDelay(150, withTiming(1, { duration: 1100, easing: Easing.out(Easing.cubic) }));
+    glow.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2400, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 2400, easing: Easing.inOut(Easing.ease) })
+      ), -1, false);
+  }, [enter, glow]);
+
+  const fadeIn = useAnimatedStyle(() => ({
+    opacity: enter.value,
+    transform: [{ translateY: interpolate(enter.value, [0, 1], [24, 0]) }],
+  }));
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(glow.value, [0, 1], [0.3, 0.75]),
+    transform: [{ scale: interpolate(glow.value, [0, 1], [0.97, 1.04]) }],
+  }));
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient colors={["#1A0B1A", "#2A1528", "#1A0B1A"]} style={StyleSheet.absoluteFillObject} />
+      <FloatingParticles count={12} />
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.iconBtn}>
+          <ArrowLeft size={20} color="#F8F0E3" />
+        </Pressable>
+        <Text style={styles.headerTitle}>A Letter to You</Text>
+        <View style={styles.iconBtn}><Sparkles size={18} color="#D4AF37" /></View>
+      </View>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Animated.View style={[styles.glow, glowStyle]} pointerEvents="none">
+          <LinearGradient
+            colors={["rgba(212,175,55,0.35)", "rgba(158,71,112,0.15)", "transparent"]}
+            style={styles.glowFill}
+          />
+        </Animated.View>
+        <Animated.View style={[styles.card, fadeIn]}>
+          <Text style={styles.eyebrow}>To my favorite human</Text>
+          <Text style={styles.title}>Priyanka</Text>
+          <Text style={styles.script}>happy birthday, my love</Text>
+          <View style={styles.divider} />
+          <Text style={styles.paragraph}>
+            If I could bottle a feeling and give it to you on your birthday, it would be the feeling of being completely, ridiculously, unapologetically loved. The kind of love that doesn&apos;t ask for anything back — it just exists, soft and steady, like sunlight through a window in the morning.
+          </Text>
+          <Text style={styles.paragraph}>
+            You are the kind of person stories are written about. The way you laugh, the way you care, the way you hold a room without ever trying to. Every memory in this little gallery is a tiny piece of you that I never want to forget — and yet, the best ones are still on their way.
+          </Text>
+          <Text style={styles.paragraph}>
+            So here&apos;s to you. To another year of being unapologetically yourself. To dreams that get bigger. To sunsets we&apos;ll chase and songs we&apos;ll play too loud. To you, today, tomorrow, and every birthday after.
+          </Text>
+          <View style={styles.signatureBlock}>
+            <View style={styles.signLine} />
+            <Text style={styles.signature}>with all my love,</Text>
+            <Text style={styles.signatureName}>— always yours</Text>
+            <Heart size={16} color="#D4AF37" fill="#D4AF37" style={{ marginTop: 8 }} />
+          </View>
+        </Animated.View>
+        <Animated.View style={fadeIn}>
+          <Pressable onPress={() => router.replace("/")} style={styles.replayBtn}>
+            <LinearGradient
+              colors={["#D4AF37", "#E0BFB8"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={styles.replayGradient}
+            >
+              <Text style={styles.replayText}>Start over</Text>
+            </LinearGradient>
+          </Pressable>
+        </Animated.View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#1A0B1A" },
+  header: { paddingTop: 64, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
+  iconBtn: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(42, 21, 40, 0.7)",
+    borderWidth: 1, borderColor: "rgba(224, 191, 184, 0.15)", alignItems: "center", justifyContent: "center",
+  },
+  headerTitle: { fontFamily: "PlayfairDisplay_700Bold", color: "#F8F0E3", fontSize: 20, letterSpacing: 0.3 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 64, alignItems: "center" },
+  glow: { position: "absolute", top: 40, width: 400, height: 400, alignSelf: "center" },
+  glowFill: { width: "100%", height: "100%", borderRadius: 9999 },
+  card: {
+    width: "100%", backgroundColor: "rgba(42, 21, 40, 0.7)", borderRadius: 24,
+    borderWidth: 1, borderColor: "rgba(212,175,55,0.25)", padding: 28,
+    shadowColor: "#D4AF37", shadowOpacity: 0.25, shadowRadius: 28, shadowOffset: { width: 0, height: 12 }, elevation: 14,
+  },
+  eyebrow: { fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 12, letterSpacing: 3, textTransform: "uppercase", textAlign: "center", marginBottom: 8 },
+  title: { fontFamily: "PlayfairDisplay_700Bold", color: "#F8F0E3", fontSize: 48, lineHeight: 54, textAlign: "center", letterSpacing: -0.5 },
+  script: { fontFamily: "Caveat_700Bold", color: "#D4AF37", fontSize: 28, textAlign: "center", marginTop: 4 },
+  divider: { width: 60, height: 1, backgroundColor: "rgba(212,175,55,0.6)", alignSelf: "center", marginVertical: 24 },
+  paragraph: { fontFamily: "PlayfairDisplay_400Regular_Italic", color: "#F8F0E3", fontSize: 16, lineHeight: 28, marginBottom: 18, letterSpacing: 0.2 },
+  signatureBlock: { marginTop: 12, alignItems: "flex-end" },
+  signLine: { width: 60, height: 1, backgroundColor: "rgba(212,175,55,0.5)", marginBottom: 10 },
+  signature: { fontFamily: "Outfit_400Regular", color: "#DAB6C4", fontSize: 13, letterSpacing: 1.5 },
+  signatureName: { fontFamily: "Caveat_700Bold", color: "#D4AF37", fontSize: 26, marginTop: 4 },
+  replayBtn: {
+    marginTop: 32, borderRadius: 999, overflow: "hidden",
+    shadowColor: "#D4AF37", shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12,
+  },
+  replayGradient: { paddingHorizontal: 36, paddingVertical: 14 },
+  replayText: { fontFamily: "Outfit_600SemiBold", color: "#1A0B1A", fontSize: 15, letterSpacing: 0.5 },
+});
+```
+
+---
+
+### 💡 To use this in your own Expo project
+
+```bash
+npx create-expo-app my-birthday-app -t default
+cd my-birthday-app
+yarn expo install lucide-react-native react-native-svg expo-linear-gradient expo-image \
+  @expo-google-fonts/playfair-display @expo-google-fonts/outfit @expo-google-fonts/caveat \
+  react-native-reanimated react-native-gesture-handler
+```
+
+Then drop the files above into the matching paths. That's it!
+
+### 📥 Want to download all files at once?
+- Click the **"Save to GitHub"** button in the Emergent UI (top right) to push the entire codebase to your repo, or
+- Use the platform's **Download Code** option to grab a zip
+
+Let me know if you want me to add music, a custom unlock screen, or anything else!

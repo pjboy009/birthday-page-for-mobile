@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Priyanka Birthday Surprise</title>
+
+  <!-- Same font families used in the Expo app -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+
+    <!-- INTRO SCREEN -->
+    <section id="intro" class="screen intro-screen active">
+      <div class="bg-gradient"></div>
+      <div class="glow-orb"></div>
+      <div class="particles"></div>
+
+      <div class="intro-content">
+        <div class="gift-ring">🎁</div>
+        <p class="eyebrow">A little surprise for</p>
+        <h1 class="name-text">Priyanka</h1>
+        <p class="script-text">happy birthday</p>
+        <p class="subtitle">
+          A collection of moments, memories, and everything that makes you, you.
+          Tap each polaroid to unfold a little secret.
+        </p>
+
+        <button class="gold-btn" data-open="gallery">
+          Open Your Surprise <span>›</span>
+        </button>
+      </div>
+
+      <p class="footer">made with love · 2026</p>
+    </section>
+
+    <!-- GALLERY SCREEN -->
+    <section id="gallery" class="screen gallery-screen">
+      <div class="bg-gradient"></div>
+      <div class="particles"></div>
+
+      <header class="topbar">
+        <button class="icon-btn" data-open="intro">‹</button>
+        <div>
+          <p class="header-eyebrow">For Priyanka</p>
+          <h2 class="header-title">Memory Lane</h2>
+        </div>
+        <button class="icon-btn heart">♥</button>
+      </header>
+
+      <section class="carousel-section">
+        <div class="memory-carousel" id="memoryCarousel">
+          <!-- Cards are created from script.js -->
+        </div>
+      </section>
+
+      <footer class="bottom-dock">
+        <p>Swipe through · Tap to reveal</p>
+        <button class="letter-btn" data-open="message">Read my letter to you</button>
+      </footer>
+    </section>
+
+    <!-- MEMORY DETAIL SCREEN -->
+    <section id="memory" class="screen memory-screen">
+      <div class="bg-gradient"></div>
+      <div class="particles"></div>
+
+      <header class="topbar">
+        <button class="icon-btn" data-open="gallery">‹</button>
+        <div>
+          <p class="header-eyebrow" id="memoryDate">The Beginning</p>
+          <h2 class="header-title" id="memoryTitle">The First Sparkle</h2>
+        </div>
+        <button class="icon-btn heart">♥</button>
+      </header>
+
+      <section class="memory-detail-center">
+        <div class="flip-card" id="flipCard">
+          <div class="flip-inner">
+            <article class="flip-face flip-front">
+              <div class="detail-photo-frame">
+                <img id="memoryImage" src="" alt="Memory photo">
+                <div class="photo-shade"></div>
+                <span class="tap-pill">↻ Tap to read</span>
+              </div>
+              <h3 id="frontCaption">Memory Title</h3>
+            </article>
+
+            <article class="flip-face flip-back">
+              <p class="note-date" id="backDate">The Beginning</p>
+              <p class="note-body" id="memoryNote">Memory note appears here.</p>
+              <div class="signature-block">
+                <span class="sign-line"></span>
+                <p>— always yours</p>
+              </div>
+              <span class="tap-back">↻ Tap to flip back</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <p class="memory-footer" id="memoryCounter">A moment with you · 1 of 8</p>
+    </section>
+
+    <!-- MESSAGE SCREEN -->
+    <section id="message" class="screen message-screen">
+      <div class="bg-gradient"></div>
+      <div class="particles"></div>
+
+      <header class="topbar">
+        <button class="icon-btn" data-open="gallery">‹</button>
+        <h2 class="header-title">A Letter to You</h2>
+        <button class="icon-btn">✦</button>
+      </header>
+
+      <section class="letter-scroll">
+        <article class="letter-card">
+          <p class="eyebrow">To my favorite human</p>
+          <h1 class="letter-title">Priyanka</h1>
+          <p class="script-text">happy birthday, my love</p>
+          <div class="divider"></div>
+
+          <p>
+            If I could bottle a feeling and give it to you on your birthday,
+            it would be the feeling of being completely, ridiculously,
+            unapologetically loved.
+          </p>
+
+          <p>
+            You are the kind of person stories are written about. The way you
+            laugh, the way you care, the way you hold a room without ever trying to.
+          </p>
+
+          <p>
+            So here's to you. To another year of being unapologetically yourself.
+            To dreams that get bigger. To sunsets we'll chase and songs we'll play too loud.
+          </p>
+
+          <div class="signature-block">
+            <span class="sign-line"></span>
+            <p class="signature">with all my love,</p>
+            <p class="signature-name">— always yours ♥</p>
+          </div>
+        </article>
+
+        <button class="gold-btn replay" data-open="intro">Start over</button>
+      </section>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

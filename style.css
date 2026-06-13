@@ -1,0 +1,546 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --dark: #1A0B1A;
+  --dark-2: #2A1528;
+  --gold: #D4AF37;
+  --rose: #E0BFB8;
+  --pink: #DAB6C4;
+  --plum: #9E4770;
+  --cream: #F8F0E3;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  background: var(--dark);
+  color: var(--cream);
+  font-family: "Outfit", sans-serif;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.screen {
+  display: none;
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.screen.active {
+  display: block;
+}
+
+.bg-gradient {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1A0B1A 0%, #2A1528 48%, #1A0B1A 100%);
+  z-index: 0;
+}
+
+.glow-orb {
+  position: absolute;
+  width: 140vw;
+  height: 140vw;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(212,175,55,0.45), rgba(158,71,112,0.2), transparent 65%);
+  animation: glowPulse 4.4s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.particle {
+  position: absolute;
+  bottom: -40px;
+  opacity: 0;
+  animation: floatUp linear infinite;
+}
+
+.intro-content {
+  position: relative;
+  min-height: 100vh;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  text-align: center;
+}
+
+.gift-ring {
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(212,175,55,0.45);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(42,21,40,0.6);
+  box-shadow: 0 0 24px rgba(212,175,55,0.5);
+  font-size: 34px;
+  margin-bottom: 32px;
+  animation: giftFloat 3.6s ease-in-out infinite;
+}
+
+.eyebrow,
+.header-eyebrow {
+  color: var(--pink);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.name-text {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(52px, 16vw, 70px);
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--cream);
+}
+
+.script-text {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 38px;
+  margin: 4px 0 28px;
+}
+
+.subtitle {
+  max-width: 320px;
+  color: var(--pink);
+  font-size: 15px;
+  line-height: 24px;
+  margin-bottom: 48px;
+}
+
+.gold-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--gold), var(--rose));
+  color: var(--dark);
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 8px 22px rgba(212,175,55,0.45);
+  transition: transform 0.25s ease;
+}
+
+.gold-btn:active {
+  transform: scale(0.96);
+}
+
+.footer {
+  position: absolute;
+  bottom: 36px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: "Caveat", cursive;
+  color: rgba(218,182,196,0.6);
+  z-index: 3;
+}
+
+.topbar {
+  position: relative;
+  z-index: 4;
+  padding: 64px 20px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(42,21,40,0.7);
+  border: 1px solid rgba(224,191,184,0.15);
+  color: var(--cream);
+  font-size: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.icon-btn.heart {
+  color: var(--gold);
+  font-size: 20px;
+}
+
+.header-title {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  color: var(--cream);
+}
+
+.carousel-section {
+  position: relative;
+  z-index: 3;
+  min-height: calc(100vh - 230px);
+  display: flex;
+  align-items: center;
+}
+
+.memory-carousel {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 24px 14vw;
+  scrollbar-width: none;
+}
+
+.memory-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.polaroid-card {
+  flex: 0 0 min(72vw, 320px);
+  height: min(95vw, 420px);
+  background: var(--cream);
+  color: var(--dark-2);
+  border-radius: 6px;
+  padding: 12px 12px 22px;
+  scroll-snap-align: center;
+  box-shadow: 0 18px 28px rgba(0,0,0,0.55);
+  transform: perspective(900px) rotateY(0deg) rotateZ(-2deg);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.polaroid-card:active {
+  transform: perspective(900px) scale(0.96) rotateY(8deg);
+}
+
+.photo-frame {
+  position: relative;
+  height: 78%;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--dark-2);
+}
+
+.photo-frame img,
+.detail-photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent, rgba(26,11,26,0.7));
+}
+
+.date-chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(26,11,26,0.55);
+  border: 1px solid rgba(212,175,55,0.5);
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.caption-title {
+  font-family: "Caveat", cursive;
+  font-size: 24px;
+  margin-top: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caption-hint {
+  color: var(--plum);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.bottom-dock {
+  position: relative;
+  z-index: 4;
+  padding: 8px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.bottom-dock p,
+.memory-footer {
+  color: rgba(218,182,196,0.7);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.letter-btn {
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(158,71,112,0.18));
+  border: 1px solid rgba(212,175,55,0.4);
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.memory-detail-center {
+  position: relative;
+  z-index: 3;
+  min-height: calc(100vh - 185px);
+  display: grid;
+  place-items: center;
+}
+
+.flip-card {
+  width: min(82vw, 340px);
+  height: min(111vw, 460px);
+  perspective: 1200px;
+}
+
+.flip-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(.65,0,.35,1);
+}
+
+.flip-card.flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 22px 32px rgba(0,0,0,0.6);
+}
+
+.flip-front {
+  background: var(--cream);
+  padding: 14px 14px 28px;
+}
+
+.detail-photo-frame {
+  position: relative;
+  height: 86%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tap-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(212,175,55,0.95);
+  color: var(--dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flip-front h3 {
+  font-family: "Caveat", cursive;
+  color: var(--dark-2);
+  font-size: 26px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, var(--cream), #E8DCC8);
+  color: var(--dark-2);
+  padding: 56px 32px 32px;
+}
+
+.note-date {
+  color: var(--plum);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.note-body {
+  font-family: "Caveat", cursive;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.signature-block {
+  margin-top: 28px;
+  color: var(--plum);
+}
+
+.sign-line {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: var(--plum);
+  margin-bottom: 8px;
+}
+
+.tap-back {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--plum);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.memory-footer {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.letter-scroll {
+  position: relative;
+  z-index: 3;
+  padding: 16px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.letter-card {
+  width: 100%;
+  border-radius: 24px;
+  border: 1px solid rgba(212,175,55,0.25);
+  background: rgba(42,21,40,0.7);
+  padding: 28px;
+  box-shadow: 0 12px 28px rgba(212,175,55,0.25);
+}
+
+.letter-title {
+  font-family: "Playfair Display", serif;
+  font-size: 48px;
+  text-align: center;
+}
+
+.divider {
+  width: 60px;
+  height: 1px;
+  background: rgba(212,175,55,0.6);
+  margin: 24px auto;
+}
+
+.letter-card p {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 28px;
+  margin-bottom: 18px;
+}
+
+.letter-card .eyebrow {
+  font-family: "Outfit", sans-serif;
+  font-style: normal;
+  text-align: center;
+}
+
+.letter-card .script-text {
+  text-align: center;
+  font-family: "Caveat", cursive;
+  font-style: normal;
+  font-size: 28px;
+}
+
+.signature,
+.signature-name {
+  font-style: normal !important;
+  text-align: right;
+}
+
+.signature-name {
+  font-family: "Caveat", cursive !important;
+  color: var(--gold);
+  font-size: 26px !important;
+}
+
+.replay {
+  margin-top: 32px;
+}
+
+@keyframes glowPulse {
+  from { opacity: 0.35; transform: translate(-50%, -50%) scale(0.95); }
+  to { opacity: 0.85; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes giftFloat {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) translateX(0) scale(0.6) rotate(0deg); opacity: 0; }
+  15% { opacity: 0.9; }
+  85% { opacity: 0.9; }
+  100% { transform: translateY(-110vh) translateX(var(--drift)) scale(0.75) rotate(360deg); opacity: 0; }
+}
+
+/* Mobile-first already. This only improves larger screen preview. */
+@media (min-width: 700px) {
+  .screen {
+    max-width: 430px;
+    margin: 0 auto;
+    box-shadow: 0 0 60px rgba(0,0,0,0.6);
+  }
+
+  .bg-gradient,
+  .particles {
+    max-width: 430px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
