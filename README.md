@@ -31,7 +31,8 @@ This keeps the same general style:
 - floating particles
 - mobile-first layout
 
-Replace the image URLs and memory text inside `script.js`.
+## Replace the image URLs and memory text inside `script.js`.
+- made by me panya ;) 
 =======
 
 >>>>>>> fca67227c6626ab746a1bdcd7e7f8845355aa9ec
