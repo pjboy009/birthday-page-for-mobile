@@ -1,4 +1,5 @@
-# Friends Birthday Website - HTML Version
+<<<<<<< HEAD
+# Favone's Birthday Website - HTML Version
 
 This is the converted normal web version of the Expo React Native app.
 
@@ -21,6 +22,7 @@ For best testing:
 ## Important
 
 This keeps the same general style:
+- priyanka is demo name you can change with your one 
 - dark wine background
 - Playfair Display, Outfit, Caveat fonts
 - golden/pink colors
@@ -30,3 +32,6 @@ This keeps the same general style:
 - mobile-first layout
 
 Replace the image URLs and memory text inside `script.js`.
+=======
+
+>>>>>>> fca67227c6626ab746a1bdcd7e7f8845355aa9ec
