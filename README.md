@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Favone's Birthday Website - HTML Version
 
 This is the converted normal web version of the Expo React Native app.
@@ -35,4 +35,4 @@ This keeps the same general style:
 - made by me panya ;) 
 =======
 
->>>>>>> fca67227c6626ab746a1bdcd7e7f8845355aa9ec
+
